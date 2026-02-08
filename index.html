@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZeroGasto AI - Test 8 Feb</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-4 flex flex-col items-center">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold text-green-600 mb-4 text-center">ZeroGasto AI</h1>
+        <div id="chatWindow" class="h-64 overflow-y-auto mb-4 p-2 border rounded bg-slate-50 text-sm"></div>
+        <div class="flex gap-2">
+            <input type="text" id="userInput" placeholder="Escribe 'Hola'..." class="flex-1 border p-2 rounded">
+            <button id="sendBtn" class="bg-green-600 text-white px-4 py-2 rounded">Enviar</button>
+        </div>
+    </div>
+
+    <script type="importmap">
+      { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
+    </script>
+
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
+
+        // LLAVE NUEVA
+        const API_KEY = "AIzaSyDY_tG-u5vO7mS2qD9XFwR_P4M7XJ0Z7E"; 
+        const genAI = new GoogleGenerativeAI(API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const chatWindow = document.getElementById('chatWindow');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        async function handleSend() {
+            const text = userInput.value.trim();
+            if (!text) return;
+            
+            chatWindow.innerHTML += `<p class="text-blue-600"><b>Tú:</b> ${text}</p>`;
+            userInput.value = '';
+
+            try {
+                const result = await model.generateContent(text);
+                const response = await result.response;
+                chatWindow.innerHTML += `<p class="text-gray-700"><b>AI:</b> ${response.text()}</p>`;
+            } catch (e) {
+                console.error(e);
+                chatWindow.innerHTML += `<p class="text-red-500"><b>Error:</b> El servidor de Google sigue rechazando la conexión. Intentemos en 1 hora.</p>`;
+            }
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        sendBtn.onclick = handleSend;
+    </script>
+</body>
+</html>
